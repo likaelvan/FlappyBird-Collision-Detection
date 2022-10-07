@@ -188,7 +188,7 @@ class FlappyBirdBrowserView {
     this.tickHandlers.forEach((f) => f(this));
 
     if (!this.isTickingPaused) {
-      //window.requestAnimationFrame(this.tickHandler);
+      window.requestAnimationFrame(this.tickHandler);
     }
   };
 
@@ -358,19 +358,56 @@ class CollisionDetector implements GameOverConditionDetector {
     screenHeight: number,
     groundHeight: number
   ): boolean {
-    // FIXME: Implement this
+    for (const pair of pairs) {
+
+      //prevent jump over top pipe
+      if (bird.y < 0 && (bird.x +35 >= pair.x) ){
+        return true;
+      }
+      //top pipe
+      if(this.hasCollidedWith(
+        bird,
+        pair.x + (pair.width/2),
+        pair.topHeight/2,
+        pair.width,
+        pair.topHeight
+      )){
+        return true;
+      }
+
+      //bottom pipe
+      if(this.hasCollidedWith(
+        bird,
+        pair.x + (pair.width/2),
+        screenHeight - (groundHeight + pair.bottomHeight/2),
+        pair.width,
+        pair.bottomHeight
+      )){
+        return true;
+      }
+    }
     return false;
   }
 
   hasCollidedWith(
     bird: Bird,
     pipeX: number,
-    pipeY: number,
+    pipeY: number, 
     pipeWidth: number,
-    pipeHeight: number
+    pipeHeight: number 
   ): boolean {
-    // FIXME: Implement this
-    return false;
+    let xDist = Math.abs(bird.x - pipeX);    
+    let yDist = Math.abs(bird.y - pipeY);
+
+    if (xDist > (pipeWidth/2 + 35)) { return false; }
+    if  (yDist > (pipeHeight/2 + 35)) { return false; }
+
+    if (xDist <= (pipeWidth/2)) { return true; } 
+    if  (yDist <= (pipeHeight/2)) { return true;    } // top pipe infin8
+
+    let cornerDistance_sq = (xDist - pipeWidth/2)**2 + (yDist - pipeHeight/2)**2;
+
+    return (cornerDistance_sq <= (35**2));
   }
 }
 
@@ -413,23 +450,32 @@ class ScoreManager {
   private _score = 0;
 
   get score() {
-    // FIXME: Implement this
-    return 0;
+    return this._score;
   }
 
   updateScoreIfNeeded(
     previousGameState: FlappyBirdGameState,
     currentGameState: FlappyBirdGameState
   ): void {
-    // FIXME: Implement this
+
+    if(this.shouldUpdateScore(
+      previousGameState,
+      currentGameState
+    )){ 
+      this._score++;
+    }
   }
 
   shouldUpdateScore(
     previousGameState: FlappyBirdGameState,
     currentGameState: FlappyBirdGameState
   ): boolean {
-    // FIXME: Implement this
-    return false;
+    
+    if(currentGameState.pipePairs.length !=previousGameState.pipePairs.length) {
+      return true;
+    }
+     
+    return false;  
   }
 
   reset(): void {
@@ -523,7 +569,7 @@ class FlappyBirdModel {
       screenHeight: 800,
       groundHeight: 128,
       birdWidth: 92,
-      birdHeight: 64,
+      birdHeight: 64, 
       pipeWidth: 138,
       pipeVx: -3,
       birdAy: 0.5,
@@ -625,12 +671,12 @@ class FlappyBirdPresenter {
   };
 
   handleJump = () => {
-    //if (this.model.isGameOver()) {
-    //  this.model.reset();
-    //  this.view.unpauseTicking();
-    //} else {
-    //  this.model.triggerJump();
-    //}
+    if (this.model.isGameOver()) {
+     this.model.reset();
+     this.view.unpauseTicking();
+    } else {
+     this.model.triggerJump();
+    }
   };
 }
 
@@ -642,7 +688,7 @@ async function main() {
     groundVx: -3,
     //debug: true,
   });
-  new FlappyBirdPresenter(model, view);
+  new FlappyBirdPresenter(model, view); 
 }
 
 main();
