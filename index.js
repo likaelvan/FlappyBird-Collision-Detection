@@ -244,7 +244,7 @@ class ScoreManager {
         }
     }
     shouldUpdateScore(previousGameState, currentGameState) {
-        if (currentGameState.pipePairs.length != previousGameState.pipePairs.length) {
+        if (currentGameState.pipePairs.length > previousGameState.pipePairs.length) {
             return true;
         }
         return false;

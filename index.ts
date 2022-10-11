@@ -471,7 +471,7 @@ class ScoreManager {
     currentGameState: FlappyBirdGameState
   ): boolean {
     
-    if(currentGameState.pipePairs.length !=previousGameState.pipePairs.length) {
+    if(currentGameState.pipePairs.length  > previousGameState.pipePairs.length) {
       return true;
     }
      
